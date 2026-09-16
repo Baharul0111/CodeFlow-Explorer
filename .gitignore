@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+backend/.e2e/
+
+# Node
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/playwright-report/
+frontend/test-results/
+frontend/.e2e/
+
+# App data
+data/
+workspace/
+.env
+*.db
+*.db-wal
+*.db-shm
+samples/dist/*.zip
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

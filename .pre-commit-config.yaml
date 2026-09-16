@@ -1,0 +1,33 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: bash -c 'cd backend && uv run ruff check --fix .'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+      - id: ruff-format
+        name: ruff format
+        entry: bash -c 'cd backend && uv run ruff format .'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+      - id: mypy
+        name: mypy
+        entry: bash -c 'cd backend && uv run mypy app'
+        language: system
+        files: ^backend/app/.*\.py$
+        pass_filenames: false
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd frontend && pnpm lint'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+      - id: prettier
+        name: prettier
+        entry: bash -c 'cd frontend && pnpm format'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|css)$
+        pass_filenames: false

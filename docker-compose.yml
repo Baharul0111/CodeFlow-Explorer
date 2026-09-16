@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:////data/codeflow.db
+      WORKSPACE_DIR: /workspace
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      APP_ENV: ${APP_ENV:-prod}
+    ports:
+      - "8000:8000"
+    volumes:
+      - codeflow-data:/data
+      - codeflow-workspace:/workspace
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  codeflow-data:
+  codeflow-workspace:
