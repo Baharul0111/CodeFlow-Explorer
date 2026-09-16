@@ -28,6 +28,8 @@ dependencies = [
     "structlog>=25",
     "python-multipart>=0.0.32",
     "sse-starlette>=3.4",
+    "aiofiles>=25.1.0",
+    "types-aiofiles>=25.1.0.20260518",
 ]
 
 [dependency-groups]

@@ -9,7 +9,9 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.errors import install_error_handlers
+from app.api.ratelimit import RateLimiter
 from app.api.routes_health import router as health_router
+from app.api.routes_projects import router as projects_router
 from app.config import Settings, get_settings
 from app.logging_setup import configure_logging, get_logger
 from app.models.db import Database
@@ -44,6 +46,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title="CodeFlow Explorer API", version="0.1.0", lifespan=lifespan)
     app.state.settings = settings
+    app.state.rate_limiter = RateLimiter()
 
     app.add_middleware(
         CORSMiddleware,
@@ -65,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     install_error_handlers(app)
     app.include_router(health_router)
+    app.include_router(projects_router)
     return app
 
 
