@@ -60,7 +60,12 @@ def configure_logging(level: str = "INFO", *, json_output: bool = False) -> None
         cache_logger_on_first_use=True,
     )
     formatter = structlog.stdlib.ProcessorFormatter(
-        foreign_pre_chain=shared, processors=[redact_processor, renderer]
+        foreign_pre_chain=shared,
+        processors=[
+            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+            redact_processor,
+            renderer,
+        ],
     )
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)

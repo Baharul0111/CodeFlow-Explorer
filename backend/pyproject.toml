@@ -69,6 +69,8 @@ known-first-party = ["app"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S", "PLR", "ARG", "E501"]
+# Parser dispatch code is branchy by nature (one branch per grammar / node shape).
+"app/parsing/**" = ["PLR0911", "PLR0912", "PLR0915"]
 
 [tool.ruff.format]
 quote-style = "double"
