@@ -11,9 +11,12 @@ Every box points at real code. Every explanation is written for someone who has 
 [![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Claude API](https://img.shields.io/badge/Claude-bring%20your%20own%20key-d97757)](https://platform.claude.com/)
-[![Tests](https://img.shields.io/badge/tests-122%20pytest%20%2B%206%20playwright-success)](#testing)
+[![CI](https://github.com/Baharul0111/CodeFlow-Explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/Baharul0111/CodeFlow-Explorer/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live-demo-0e7c86)](https://baharul0111.github.io/CodeFlow-Explorer/)
 
 ![The system flow for a small Flask app, with six colour-coded stages](docs/images/graph.png)
+
+**[▶ Explore a live graph in your browser](https://baharul0111.github.io/CodeFlow-Explorer/)** — no install, no key
 
 </div>
 
@@ -21,6 +24,7 @@ Every box points at real code. Every explanation is written for someone who has 
 
 ## Contents
 
+- [Try it without installing anything](#try-it-without-installing-anything)
 - [What it does](#what-it-does)
 - [Why it's different](#why-its-different)
 - [Screenshots](#screenshots)
@@ -102,6 +106,17 @@ and every arrow is labelled with the data that actually moves — `email + passw
 
 ---
 
+## Try it without installing anything
+
+**[baharul0111.github.io/CodeFlow-Explorer](https://baharul0111.github.io/CodeFlow-Explorer/)**
+hosts four already-analysed projects. Each one is the app's own single-file export, so you can pan,
+zoom, open steps and read the code straight in your browser.
+
+Those pages are static snapshots. To analyse **your own** code you run the app locally — it needs
+its Python backend to unzip, parse and talk to Claude.
+
+---
+
 ## Quick start
 
 ### Prerequisites
@@ -116,8 +131,8 @@ and every arrow is labelled with the data that actually moves — `email + passw
 ### Install and run
 
 ```bash
-git clone https://github.com/<your-username>/codeflow-explorer.git
-cd codeflow-explorer
+git clone https://github.com/Baharul0111/CodeFlow-Explorer.git
+cd CodeFlow-Explorer
 cp .env.example .env        # optional — every setting has a sensible default
 make install                # backend deps, frontend deps, Playwright's browser
 make dev                    # backend on :8000, frontend on :3000
