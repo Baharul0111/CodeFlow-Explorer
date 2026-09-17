@@ -1,0 +1,63 @@
+name: Deploy demo site
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deployments at once; always let the newest finish.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Build the static demo site
+        working-directory: backend
+        env:
+          # Add an ANTHROPIC_API_KEY repository secret to generate the demos with the real model.
+          # Without it the build uses the deterministic stand-in, which needs no key and costs nothing.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "Building demos with the Claude API"
+            uv run python ../scripts/build_demo_site.py --out ../site --real
+          else
+            echo "No ANTHROPIC_API_KEY secret set — building demos in deterministic mode"
+            uv run python ../scripts/build_demo_site.py --out ../site
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

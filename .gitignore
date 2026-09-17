@@ -30,3 +30,4 @@ samples/dist/*.zip
 .vscode/
 backend/.dev/
 .scratch/
+site/

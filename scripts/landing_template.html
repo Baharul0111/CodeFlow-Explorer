@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeFlow Explorer — read a codebase as a flow</title>
+<meta name="description" content="Upload a project and read how it works as a flow you can open up, from where data enters down to the lines inside one function.">
+<style>
+:root{--bg:#f7f8fa;--surface:#fff;--sunken:#eef1f5;--border:#dbe1ea;--text:#121a24;--muted:#5a6779;
+--faint:#8a95a5;--accent:#0e7c86;--accent-soft:#e2f3f4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1118;--surface:#131a24;--sunken:#0f151d;--border:#253040;
+--text:#e8edf4;--muted:#9dabbe;--faint:#6f7d92;--accent:#45c6cf;--accent-soft:#10323a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:56px 20px 72px}
+h1{font-size:clamp(2rem,5vw,3rem);line-height:1.1;letter-spacing:-.02em;margin:.2em 0 .3em;text-wrap:balance}
+h2{font-size:1.35rem;letter-spacing:-.01em;margin:2.5em 0 .6em}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 8px}
+.btn{display:inline-block;padding:10px 18px;border-radius:10px;font-weight:650;text-decoration:none;font-size:.95rem}
+.btn.primary{background:var(--accent);color:var(--bg)}
+.btn.ghost{border:1px solid var(--border);color:var(--text);background:var(--surface)}
+.note{background:var(--sunken);border:1px solid var(--border);border-left:3px solid var(--accent);
+border-radius:10px;padding:12px 16px;color:var(--muted);font-size:.95rem;margin:24px 0}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:14px}
+.card{display:block;padding:18px;border:1px solid var(--border);border-radius:12px;background:var(--surface);
+text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card h3{margin:.35em 0 .3em;font-size:1.05rem}
+.card p{margin:0;color:var(--muted);font-size:.92rem}
+.stack{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.count{display:block;margin-top:12px;font-size:.85rem;color:var(--faint)}
+ul{color:var(--muted)}
+li{margin:.3em 0}
+pre{background:var(--sunken);border:1px solid var(--border);border-radius:10px;padding:14px 16px;overflow:auto;
+font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
+img{max-width:100%;border:1px solid var(--border);border-radius:12px;display:block;margin:18px 0}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);color:var(--faint);font-size:.9rem}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Read code like a map</p>
+  <h1>CodeFlow Explorer</h1>
+  <p class="lede">Upload a codebase and read how it works as a flow you can open up — from where
+  information comes in, down to the steps inside one small function. Every box points at real lines
+  of real code, and every explanation is written for someone who has never programmed.</p>
+
+  <div class="cta">
+    <a class="btn primary" href="#demos">Explore a live graph</a>
+    <a class="btn ghost" href="https://github.com/Baharul0111/CodeFlow-Explorer">Source on GitHub</a>
+    <a class="btn ghost" href="https://github.com/Baharul0111/CodeFlow-Explorer#quick-start">Run it yourself</a>
+  </div>
+
+  <img src="preview.png" alt="The system flow of a small Flask app: six colour-coded stages from start to output">
+
+  <h2 id="demos">Live demos</h2>
+  <p class="lede">Each of these is the app's own one-file export of a real analysed project. Click a
+  box to select it, use <strong>+</strong> to open it up, and read the code it points at — all in
+  your browser, with nothing installed.</p>
+  <div class="grid">
+__CARDS__
+  </div>
+
+  <div class="note">__NOTE__</div>
+
+  <h2>Why it isn't just "ask an AI about my code"</h2>
+  <ul>
+    <li><strong>Grounded.</strong> tree-sitter maps the real files, functions and calls first. Claude
+    may only describe things in that map — output naming a file, symbol or line that isn't in the
+    upload is rejected and regenerated.</li>
+    <li><strong>Plain English.</strong> Five-word titles, 25-word explanations, and arrows labelled
+    with the data that actually moves.</li>
+    <li><strong>Cheap on purpose.</strong> Static analysis does everything it can for free; prompt
+    caching, batching and a content hash cache do the rest. You see a cost estimate first.</li>
+    <li><strong>Your key, your bill.</strong> No accounts. The key stays on the server and never
+    reaches the browser or the logs.</li>
+    <li><strong>Never runs your code.</strong> Uploads are read as text and parsed.</li>
+  </ul>
+
+  <h2>Run the full app</h2>
+  <p class="lede">The demos above are static snapshots. To analyse <em>your own</em> code you run the
+  app locally — it needs its Python backend for unzipping, parsing and talking to Claude.</p>
+<pre>git clone https://github.com/Baharul0111/CodeFlow-Explorer.git
+cd CodeFlow-Explorer
+make install
+make dev          # then open http://localhost:3000</pre>
+  <p class="lede">No API key handy? <code>LLM_MODE=mock</code> runs the whole pipeline against a
+  deterministic stand-in, exactly like these demos.</p>
+
+  <footer>
+    Built with tree-sitter, React Flow, ELK, FastAPI and the Claude API.
+    <a href="https://github.com/Baharul0111/CodeFlow-Explorer">github.com/Baharul0111/CodeFlow-Explorer</a>
+  </footer>
+</div>
+</body>
+</html>

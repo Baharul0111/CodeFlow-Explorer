@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend — lint, types, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - working-directory: backend
+        run: uv sync --frozen
+      - name: Lint
+        working-directory: backend
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type check
+        working-directory: backend
+        run: uv run mypy app
+      - name: Build sample projects
+        run: python samples/scripts/make_sample_zips.py
+      - name: Tests
+        working-directory: backend
+        run: uv run pytest -q
+
+  frontend:
+    name: Frontend — lint, types, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - working-directory: frontend
+        run: pnpm lint
+      - working-directory: frontend
+        run: pnpm typecheck
+      - working-directory: frontend
+        run: pnpm format:check
+      - working-directory: frontend
+        run: pnpm build
+
+  e2e:
+    name: End-to-end (browser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - working-directory: backend
+        run: uv sync --frozen
+      - working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - working-directory: frontend
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Build sample projects
+        run: python samples/scripts/make_sample_zips.py
+      - name: Playwright
+        working-directory: frontend
+        run: pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
