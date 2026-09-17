@@ -7,7 +7,7 @@
 Every box points at real code. Every explanation is written for someone who has never programmed.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
-[![Node 20+](https://img.shields.io/badge/node-20+-5fa04e?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node 22+](https://img.shields.io/badge/node-22+-5fa04e?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Claude API](https://img.shields.io/badge/Claude-bring%20your%20own%20key-d97757)](https://platform.claude.com/)
@@ -109,8 +109,8 @@ and every arrow is labelled with the data that actually moves — `email + passw
 | Tool | Version | Why |
 |---|---|---|
 | [uv](https://docs.astral.sh/uv/) | latest | Installs Python 3.12 and the backend dependencies |
-| [Node.js](https://nodejs.org/) | 20+ | Runs the frontend |
-| [pnpm](https://pnpm.io/) | 9+ | Frontend package manager |
+| [Node.js](https://nodejs.org/) | 22+ | Runs the frontend (pnpm 11 needs 22.13+) |
+| [pnpm](https://pnpm.io/) | 11+ | Frontend package manager |
 | An Anthropic API key | — | [How to get one](#getting-an-anthropic-api-key) — or skip it and use demo mode |
 
 ### Install and run
