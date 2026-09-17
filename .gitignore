@@ -28,3 +28,4 @@ samples/dist/*.zip
 .DS_Store
 .idea/
 .vscode/
+backend/.dev/

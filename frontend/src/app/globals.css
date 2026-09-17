@@ -1,37 +1,232 @@
 @import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
 
+/* ---------------------------------------------------------------------------
+   Tokens. The chrome stays quiet (slate neutrals with a cool bias, one teal
+   accent) so the graph's semantic node colours are the only strong hues on
+   screen. Every colour is defined here first; the dark block only re-points
+   the same names.
+   --------------------------------------------------------------------------- */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --panel: #ffffff;
-  --border: #e2e8f0;
-  --accent: #2563eb;
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f5;
+  --border: #dbe1ea;
+  --border-strong: #c2cbd8;
+  --text: #121a24;
+  --text-muted: #5a6779;
+  --text-faint: #8a95a5;
+  --accent: #0e7c86;
+  --accent-hover: #0a656d;
+  --accent-contrast: #ffffff;
+  --accent-soft: #e2f3f4;
+  --focus: #0e7c86;
+  --danger: #b4231f;
+  --danger-soft: #fdeceb;
+  --warning: #9a5b00;
+  --warning-soft: #fdf0dc;
+  --success: #18794e;
+  --success-soft: #e4f4ec;
+
+  /* node kinds — meaning, not decoration */
+  --node-start: #18794e;
+  --node-start-bg: #e6f5ec;
+  --node-process: #1f5fb0;
+  --node-process-bg: #e7f0fb;
+  --node-decision: #9a5b00;
+  --node-decision-bg: #fdf1dd;
+  --node-datastore: #6b3fa0;
+  --node-datastore-bg: #f1eafb;
+  --node-external: #52607a;
+  --node-external-bg: #eceff4;
+  --node-output: #b4231f;
+  --node-output-bg: #fdeaea;
+
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.06);
+  --shadow-md: 0 6px 20px -6px rgb(16 24 40 / 0.18);
+  --radius: 10px;
+  color-scheme: light;
 }
 
-.dark {
-  --background: #0b1220;
-  --foreground: #e2e8f0;
-  --muted: #94a3b8;
-  --panel: #111a2e;
-  --border: #1e293b;
-  --accent: #60a5fa;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1118;
+    --surface: #131a24;
+    --surface-sunken: #0f151d;
+    --border: #253040;
+    --border-strong: #35435a;
+    --text: #e8edf4;
+    --text-muted: #9dabbe;
+    --text-faint: #6f7d92;
+    --accent: #45c6cf;
+    --accent-hover: #63d5dc;
+    --accent-contrast: #06232a;
+    --accent-soft: #10323a;
+    --focus: #45c6cf;
+    --danger: #ff8a80;
+    --danger-soft: #3a1a19;
+    --warning: #f0b45e;
+    --warning-soft: #33250f;
+    --success: #5fd29a;
+    --success-soft: #10301f;
+
+    --node-start: #5fd29a;
+    --node-start-bg: #10281d;
+    --node-process: #6fb0f2;
+    --node-process-bg: #10233a;
+    --node-decision: #f0b45e;
+    --node-decision-bg: #302108;
+    --node-datastore: #b795f0;
+    --node-datastore-bg: #221737;
+    --node-external: #9dabbe;
+    --node-external-bg: #1a2230;
+    --node-output: #ff8a80;
+    --node-output-bg: #361a19;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0c1118;
+  --surface: #131a24;
+  --surface-sunken: #0f151d;
+  --border: #253040;
+  --border-strong: #35435a;
+  --text: #e8edf4;
+  --text-muted: #9dabbe;
+  --text-faint: #6f7d92;
+  --accent: #45c6cf;
+  --accent-hover: #63d5dc;
+  --accent-contrast: #06232a;
+  --accent-soft: #10323a;
+  --focus: #45c6cf;
+  --danger: #ff8a80;
+  --danger-soft: #3a1a19;
+  --warning: #f0b45e;
+  --warning-soft: #33250f;
+  --success: #5fd29a;
+  --success-soft: #10301f;
+
+  --node-start: #5fd29a;
+  --node-start-bg: #10281d;
+  --node-process: #6fb0f2;
+  --node-process-bg: #10233a;
+  --node-decision: #f0b45e;
+  --node-decision-bg: #302108;
+  --node-datastore: #b795f0;
+  --node-datastore-bg: #221737;
+  --node-external: #9dabbe;
+  --node-external-bg: #1a2230;
+  --node-output: #ff8a80;
+  --node-output-bg: #361a19;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-panel: var(--panel);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
   --color-accent: var(--accent);
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-card: var(--radius);
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
+html {
+  background: var(--bg);
+}
 
 body {
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* React Flow surface adopts our tokens in both themes */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-text {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+.react-flow__edge-textbg {
+  fill: var(--surface);
+}
+.react-flow__controls-button {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  fill: currentColor;
+}
+.react-flow__controls-button:hover {
+  background: var(--surface-sunken);
+}
+.react-flow__minimap {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.react-flow__node:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

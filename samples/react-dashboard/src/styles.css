@@ -1,0 +1,4 @@
+.dashboard { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 60rem; }
+.cards { display: grid; gap: 1rem; grid-template-columns: repeat(4, 1fr); }
+.error { color: #b4231f; }
+table { width: 100%; border-collapse: collapse; }

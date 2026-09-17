@@ -12,14 +12,14 @@ install:
 dev:
 	@trap 'kill 0' EXIT; \
 	( cd $(BACKEND) && uv run uvicorn app.main:app --reload --port 8000 ) & \
-	( cd $(FRONTEND) && pnpm dev ) & \
+	( cd $(FRONTEND) && PORT=3000 pnpm dev ) & \
 	wait
 
 dev-backend:
 	cd $(BACKEND) && uv run uvicorn app.main:app --reload --port 8000
 
 dev-frontend:
-	cd $(FRONTEND) && pnpm dev
+	cd $(FRONTEND) && PORT=3000 pnpm dev
 
 test-backend:
 	cd $(BACKEND) && uv run pytest -q
