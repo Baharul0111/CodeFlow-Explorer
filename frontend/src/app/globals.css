@@ -8,42 +8,50 @@
    the same names.
    --------------------------------------------------------------------------- */
 :root {
-  --bg: #f7f8fa;
+  --bg: #f4f6f9;
   --surface: #ffffff;
-  --surface-sunken: #eef1f5;
-  --border: #dbe1ea;
-  --border-strong: #c2cbd8;
-  --text: #121a24;
-  --text-muted: #5a6779;
-  --text-faint: #8a95a5;
-  --accent: #0e7c86;
-  --accent-hover: #0a656d;
+  --surface-sunken: #eceff4;
+  --border: #d8dfe9;
+  --border-strong: #b6c1d1;
+  --text: #101826;
+  --text-muted: #55637a;
+  --text-faint: #7d899b;
+  --accent: #0b6f78;
+  --accent-hover: #095a62;
   --accent-contrast: #ffffff;
-  --accent-soft: #e2f3f4;
-  --focus: #0e7c86;
-  --danger: #b4231f;
+  --accent-soft: #ddf0f1;
+  --focus: #0b6f78;
+  --danger: #a81f1b;
   --danger-soft: #fdeceb;
-  --warning: #9a5b00;
-  --warning-soft: #fdf0dc;
-  --success: #18794e;
+  --warning: #8a5200;
+  --warning-soft: #fdf1dc;
+  --success: #157347;
   --success-soft: #e4f4ec;
+  --group-bg: #fbfcfe;
 
-  /* node kinds — meaning, not decoration */
-  --node-start: #18794e;
-  --node-start-bg: #e6f5ec;
-  --node-process: #1f5fb0;
-  --node-process-bg: #e7f0fb;
-  --node-decision: #9a5b00;
-  --node-decision-bg: #fdf1dd;
-  --node-datastore: #6b3fa0;
-  --node-datastore-bg: #f1eafb;
-  --node-external: #52607a;
-  --node-external-bg: #eceff4;
-  --node-output: #b4231f;
-  --node-output-bg: #fdeaea;
+  /* node kinds — meaning, not decoration. bg fills the card, line draws its border,
+     border is the thick bar on the left, text colours the kind label. */
+  --node-start: #157347;
+  --node-start-bg: #e8f6ee;
+  --node-start-line: #a8d8bd;
+  --node-process: #1b5fb0;
+  --node-process-bg: #e8f1fd;
+  --node-process-line: #a9c9ef;
+  --node-decision: #8a5200;
+  --node-decision-bg: #fdf2dd;
+  --node-decision-line: #ecc98a;
+  --node-datastore: #6234a0;
+  --node-datastore-bg: #f2ecfc;
+  --node-datastore-line: #c9b3ee;
+  --node-external: #4a5769;
+  --node-external-bg: #eef1f6;
+  --node-external-line: #c2cbd8;
+  --node-output: #b02a25;
+  --node-output-bg: #fdecec;
+  --node-output-line: #f0b3b0;
 
-  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.06);
-  --shadow-md: 0 6px 20px -6px rgb(16 24 40 / 0.18);
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.07), 0 1px 1px rgb(16 24 40 / 0.04);
+  --shadow-md: 0 8px 22px -8px rgb(16 24 40 / 0.22);
   --radius: 10px;
   color-scheme: light;
 }
@@ -69,19 +77,26 @@
     --warning-soft: #33250f;
     --success: #5fd29a;
     --success-soft: #10301f;
+    --group-bg: #101722;
 
     --node-start: #5fd29a;
     --node-start-bg: #10281d;
+    --node-start-line: #22543c;
     --node-process: #6fb0f2;
     --node-process-bg: #10233a;
+    --node-process-line: #1e3f66;
     --node-decision: #f0b45e;
     --node-decision-bg: #302108;
+    --node-decision-line: #573d14;
     --node-datastore: #b795f0;
     --node-datastore-bg: #221737;
+    --node-datastore-line: #3d2a63;
     --node-external: #9dabbe;
     --node-external-bg: #1a2230;
+    --node-external-line: #313d50;
     --node-output: #ff8a80;
     --node-output-bg: #361a19;
+    --node-output-line: #5e2b28;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
@@ -109,19 +124,26 @@
   --warning-soft: #33250f;
   --success: #5fd29a;
   --success-soft: #10301f;
+  --group-bg: #101722;
 
   --node-start: #5fd29a;
   --node-start-bg: #10281d;
+  --node-start-line: #22543c;
   --node-process: #6fb0f2;
   --node-process-bg: #10233a;
+  --node-process-line: #1e3f66;
   --node-decision: #f0b45e;
   --node-decision-bg: #302108;
+  --node-decision-line: #573d14;
   --node-datastore: #b795f0;
   --node-datastore-bg: #221737;
+  --node-datastore-line: #3d2a63;
   --node-external: #9dabbe;
   --node-external-bg: #1a2230;
+  --node-external-line: #313d50;
   --node-output: #ff8a80;
   --node-output-bg: #361a19;
+  --node-output-line: #5e2b28;
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
@@ -141,6 +163,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-contrast: var(--accent-contrast);
   --color-accent-soft: var(--accent-soft);
+  --color-group: var(--group-bg);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-warning: var(--warning);
@@ -224,6 +247,11 @@ h3,
 .react-flow__node:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
+}
+/* Edge labels must sit above the cards. React Flow gives nodes z-index 1 and leaves the label
+   layer on auto, so a label crossing a card was being hidden behind it and cut mid-word. */
+.react-flow__edgelabel-renderer {
+  z-index: 6;
 }
 
 @media (prefers-reduced-motion: reduce) {

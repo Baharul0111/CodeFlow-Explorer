@@ -100,9 +100,9 @@ and every arrow is labelled with the data that actually moves — `email + passw
 </table>
 
 > [!NOTE]
-> Real output: the `samples/flask-todo` project analysed with Claude Opus 5 for the top levels and
-> Claude Haiku 4.5 for the deep ones (Smart mix). 70 nodes, **$0.12**. Regenerate with
-> `LLM_MODE=anthropic ANTHROPIC_API_KEY=… pnpm screenshots`.
+> Real output in the light theme: the `samples/flask-todo` project analysed with Claude Opus 5 for
+> the top levels and Claude Haiku 4.5 for the deep ones (Smart mix), about **$0.12**. Regenerate
+> with `LLM_MODE=anthropic ANTHROPIC_API_KEY=… pnpm screenshots`.
 
 ---
 

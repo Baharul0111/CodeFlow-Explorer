@@ -23,14 +23,13 @@ function FlowNodeInner({ data, id }: NodeProps) {
 
   return (
     <div
-      className={`group relative flex h-full w-full flex-col justify-center gap-1 rounded-[10px] border-l-[3px] px-3 py-2 text-left shadow-[var(--shadow-sm)] transition-shadow ${
+      className={`group relative flex h-full w-full flex-col gap-1 rounded-[10px] px-3 py-2.5 text-left shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)] ${
         selected ? "ring-2 ring-[var(--focus)] ring-offset-1 ring-offset-[var(--bg)]" : ""
       }`}
       style={{
         background: style.bg,
-        borderLeftColor: style.border,
-        border: `1px solid var(--border)`,
-        borderLeft: `3px solid ${style.border}`,
+        border: `1px solid ${style.line}`,
+        borderLeft: `4px solid ${style.border}`,
       }}
       onDoubleClick={(event) => {
         event.stopPropagation();
@@ -44,7 +43,7 @@ function FlowNodeInner({ data, id }: NodeProps) {
       />
       <div className="flex items-center justify-between gap-2">
         <span
-          className="text-[10px] font-bold uppercase tracking-wider"
+          className="text-[10px] font-extrabold uppercase tracking-[0.08em]"
           style={{ color: style.text }}
         >
           {KIND_SHORT[node.kind]}
@@ -75,10 +74,8 @@ function FlowNodeInner({ data, id }: NodeProps) {
           ) : null}
         </span>
       </div>
-      <p className="line-clamp-2 font-display text-sm font-semibold leading-tight text-text">
-        {node.title}
-      </p>
-      <p className="line-clamp-2 text-xs leading-snug text-muted">{node.explanation}</p>
+      <p className="font-display text-sm font-semibold leading-tight text-text">{node.title}</p>
+      <p className="text-xs leading-snug text-muted">{node.explanation}</p>
       <Handle
         type="source"
         position={Position.Right}
@@ -106,9 +103,12 @@ function GroupNodeInner({ data, id }: NodeProps) {
         position={Position.Left}
         className="!size-1.5 !border-0 !bg-[var(--border-strong)]"
       />
-      <div className="flex items-center gap-2 px-3 pt-2">
+      <div
+        className="flex items-center gap-2 border-b px-3 py-2"
+        style={{ borderColor: style.line, background: style.bg }}
+      >
         <span
-          className="text-[10px] font-bold uppercase tracking-wider"
+          className="text-[10px] font-extrabold uppercase tracking-[0.08em]"
           style={{ color: style.text }}
         >
           {KIND_SHORT[node.kind]}

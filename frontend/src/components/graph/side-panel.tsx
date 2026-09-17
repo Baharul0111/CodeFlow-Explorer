@@ -50,7 +50,7 @@ export function SidePanel({
   return (
     <aside
       aria-label="Details"
-      className="flex w-full shrink-0 flex-col border-t border-border bg-surface lg:h-full lg:w-[380px] lg:border-l lg:border-t-0"
+      className="flex min-h-0 w-full flex-1 flex-col border-t border-border bg-surface lg:h-full lg:w-[380px] lg:flex-none lg:border-l lg:border-t-0"
     >
       <header className="flex items-start gap-2 border-b border-border px-4 py-3">
         <div className="min-w-0 flex-1">

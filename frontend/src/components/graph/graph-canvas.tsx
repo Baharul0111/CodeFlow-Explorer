@@ -26,6 +26,7 @@ import {
 import { NODE_HEIGHT, NODE_WIDTH, layoutGraph } from "@/lib/layout";
 import type { Graph, SearchHit } from "@/lib/schemas";
 import { Alert, Button, Spinner } from "@/components/ui/primitives";
+import { FlowEdge } from "./flow-edge";
 import { FlowNodeCard, GroupNodeCard } from "./flow-node";
 import type { FlowNodeData } from "./flow-node";
 import { Breadcrumbs, GraphToolbar, Legend, SearchBox } from "./graph-chrome";
@@ -34,6 +35,7 @@ import { SidePanel } from "./side-panel";
 import { useNodeColors } from "./use-theme-colors";
 
 const NODE_TYPES = { step: FlowNodeCard, group: GroupNodeCard };
+const EDGE_TYPES = { labelled: FlowEdge };
 
 interface Props {
   projectId: string;
@@ -199,13 +201,10 @@ function GraphCanvasInner({ projectId, projectName, initialGraph }: Props) {
           id: edge.id,
           source: edge.source,
           target: edge.target,
-          label: edge.label,
-          labelShowBg: true,
-          type: "smoothstep",
+          type: "labelled",
           animated: false,
-          style: { stroke: style?.stroke, strokeDasharray: style?.dash, strokeWidth: 1.5 },
           markerEnd: { type: "arrowclosed", color: style?.stroke } as Edge["markerEnd"],
-          data: { shape: edge.data_shape },
+          data: { label: edge.label, shape: edge.data_shape, kind: edge.kind },
         };
       });
       setRfNodes(nodes);
@@ -270,7 +269,12 @@ function GraphCanvasInner({ projectId, projectName, initialGraph }: Props) {
       ) : null}
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div ref={wrapper} className="relative min-h-[420px] flex-1 bg-bg">
+        {/* Stacked below lg, the canvas needs a definite height of its own: `flex-1` inside a
+            column with no fixed height resolved to zero and the graph disappeared. */}
+        <div
+          ref={wrapper}
+          className="relative h-[62vh] min-h-[340px] shrink-0 bg-bg lg:h-auto lg:min-h-0 lg:flex-1"
+        >
           {!laidOut ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm text-muted">
               <Spinner /> Laying out the flow…
@@ -282,6 +286,7 @@ function GraphCanvasInner({ projectId, projectName, initialGraph }: Props) {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             nodeTypes={NODE_TYPES}
+            edgeTypes={EDGE_TYPES}
             onNodeClick={onNodeClick}
             onPaneClick={() => setSelectedId(null)}
             minZoom={0.1}

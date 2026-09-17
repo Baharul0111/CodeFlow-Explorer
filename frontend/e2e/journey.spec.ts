@@ -54,10 +54,9 @@ test("upload, analyse, then drill from the system flow down to a leaf", async ({
   await expect(page.locator(".react-flow__node").first()).toBeVisible();
   await expect(page.getByText("START").first()).toBeVisible();
   await expect(page.getByText("OUTPUT").first()).toBeVisible();
-  const edgeLabels = page.locator(".react-flow__edge-text");
+  const edgeLabels = page.getByTestId("edge-label");
   await expect(edgeLabels.first()).toBeVisible();
   expect(await edgeLabels.count()).toBeGreaterThan(0);
-  // SVG <text> has no innerText, so read text content.
   for (const label of await edgeLabels.allTextContents()) {
     expect((label ?? "").trim().length).toBeGreaterThan(0);
     expect((label ?? "").trim().toLowerCase()).not.toBe("data");

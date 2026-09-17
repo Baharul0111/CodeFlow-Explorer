@@ -14,7 +14,8 @@ const SAMPLE_ZIP = path.resolve(__dirname, "..", "..", "samples", "dist", "flask
 const API_KEY = process.env.ANTHROPIC_API_KEY ?? "sk-ant-demo-0123456789";
 const OUT = path.resolve(__dirname, "..", "..", "docs", "images");
 
-test.use({ viewport: { width: 1420, height: 860 }, colorScheme: "dark" });
+// Light is the theme most people keep the app in, so the README shows that.
+test.use({ viewport: { width: 1420, height: 860 }, colorScheme: "light" });
 
 const GRAPH_VIEWPORT = { width: 1420, height: 620 };
 test.describe.configure({ mode: "serial" });
