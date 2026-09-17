@@ -71,6 +71,10 @@ known-first-party = ["app"]
 "tests/**" = ["S", "PLR", "ARG", "E501"]
 # Parser dispatch code is branchy by nature (one branch per grammar / node shape).
 "app/parsing/**" = ["PLR0911", "PLR0912", "PLR0915"]
+# The mock implements the ClaudeClient protocol, so it keeps arguments it does not need.
+"app/llm/mock.py" = ["ARG002"]
+# FastAPI route handlers take their dependencies as (keyword-resolved) parameters.
+"app/api/routes_*.py" = ["PLR0917"]
 
 [tool.ruff.format]
 quote-style = "double"

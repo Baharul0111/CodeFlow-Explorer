@@ -11,8 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.errors import install_error_handlers
 from app.api.ratelimit import RateLimiter
 from app.api.routes_health import router as health_router
+from app.api.routes_keys import router as keys_router
 from app.api.routes_projects import router as projects_router
 from app.config import Settings, get_settings
+from app.llm.keystore import KeyStore
 from app.logging_setup import configure_logging, get_logger
 from app.models.db import Database
 
@@ -36,6 +38,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         db = Database(settings.database_url)
         await db.create_all()
         app.state.db = db
+        app.state.key_store = KeyStore(settings.encryption_secret())
         settings.workspace_dir.mkdir(parents=True, exist_ok=True)
         log.info("startup", env=settings.app_env, llm_mode=settings.llm_mode)
         try:
@@ -68,6 +71,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     install_error_handlers(app)
     app.include_router(health_router)
+    app.include_router(keys_router)
     app.include_router(projects_router)
     return app
 

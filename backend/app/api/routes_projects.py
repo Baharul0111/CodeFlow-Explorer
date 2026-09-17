@@ -74,7 +74,7 @@ async def _spool_upload(file: UploadFile, dest: Path, max_bytes: int) -> int:
 
 
 @router.post("", response_model=ProjectOut, status_code=201)
-async def upload_project(  # noqa: PLR0917 - FastAPI resolves these by name
+async def upload_project(
     request: Request,
     file: UploadFile,
     session: SessionDep,
