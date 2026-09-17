@@ -10,18 +10,22 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 const SAMPLE_ZIP = path.resolve(__dirname, "..", "..", "samples", "dist", "flask-todo.zip");
+// Set LLM_MODE=anthropic plus ANTHROPIC_API_KEY to capture images with real Claude output.
+const API_KEY = process.env.ANTHROPIC_API_KEY ?? "sk-ant-demo-0123456789";
 const OUT = path.resolve(__dirname, "..", "..", "docs", "images");
 
 test.use({ viewport: { width: 1420, height: 860 }, colorScheme: "dark" });
 
 const GRAPH_VIEWPORT = { width: 1420, height: 620 };
 test.describe.configure({ mode: "serial" });
+// A real analysis takes a couple of minutes; the mock finishes in seconds.
+test.setTimeout(420_000);
 
 async function connect(page: Page): Promise<void> {
   await page.goto("/");
   await page.setInputFiles("#project-zip", SAMPLE_ZIP);
   await page.getByRole("button", { name: "Upload and scan" }).click();
-  await page.getByLabel("Anthropic API key").fill("sk-ant-demo-0123456789");
+  await page.getByLabel("Anthropic API key").fill(API_KEY);
   await page.getByRole("button", { name: "Test connection" }).click();
   await expect(page.getByText(/Connected\./)).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();
@@ -37,7 +41,11 @@ test("@screenshots capture the README images", async ({ page }) => {
 
   await page.getByRole("button", { name: "Start analysis" }).click();
   const open = page.getByRole("link", { name: /Open the flow/ });
-  await expect(open).toBeVisible({ timeout: 90_000 });
+  await expect(open).toBeVisible({ timeout: 300_000 });
+  // Wait for the whole run, not just level 0, so the exported page has depth to show.
+  await expect(page.getByRole("heading", { name: "Your flow is ready" })).toBeVisible({
+    timeout: 300_000,
+  });
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUT, "progress.png") });
 
@@ -76,11 +84,8 @@ test("@screenshots capture the README images", async ({ page }) => {
   await page.goto(`file://${saved}`);
   await page.setViewportSize(GRAPH_VIEWPORT);
   await page.waitForTimeout(700);
-  await page
-    .getByRole("button", { name: /^Open up / })
-    .first()
-    .click();
-  await page.waitForTimeout(700);
+  await page.getByRole("button", { name: "Open all" }).click();
+  await page.waitForTimeout(900);
   const box = page.locator(".node").filter({ hasText: "CHOICE" }).last();
   await box.click();
   await page.waitForTimeout(400);

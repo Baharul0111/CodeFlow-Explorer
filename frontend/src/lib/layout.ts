@@ -5,7 +5,7 @@ import type { GraphEdge, GraphNode } from "./schemas";
 const elk = new ELK();
 
 export const NODE_WIDTH = 236;
-export const NODE_HEIGHT = 92;
+export const NODE_HEIGHT = 108;
 const CONTAINER_HEADER = 44;
 const CONTAINER_PADDING = 20;
 

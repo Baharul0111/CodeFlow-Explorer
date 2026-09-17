@@ -75,7 +75,9 @@ function FlowNodeInner({ data, id }: NodeProps) {
           ) : null}
         </span>
       </div>
-      <p className="font-display text-sm font-semibold leading-tight text-text">{node.title}</p>
+      <p className="line-clamp-2 font-display text-sm font-semibold leading-tight text-text">
+        {node.title}
+      </p>
       <p className="line-clamp-2 text-xs leading-snug text-muted">{node.explanation}</p>
       <Handle
         type="source"

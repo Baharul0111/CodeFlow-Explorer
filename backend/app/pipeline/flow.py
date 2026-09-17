@@ -298,6 +298,31 @@ class FlowGenerator:
         )
 
     # ------------------------------------------------------------ persistence
+    def _fallback_refs(self, parent: FlowNode | None) -> list[dict[str, object]]:
+        """Code to show for a node that covers no units of its own.
+
+        Claude sometimes adds a connector ("Receive web request", "Send reply to user") that maps
+        to no single unit. Rather than leave it pointing at nothing, it inherits the parent's
+        region — or, at the top level, the places where the program starts.
+        """
+        if parent is not None and parent.code_refs:
+            return [dict(ref) for ref in parent.code_refs if isinstance(ref, dict)][:3]
+        refs: list[dict[str, object]] = []
+        for entry in self._cm.entry_points[:3]:
+            fm = self._cm.files.get(entry.file)
+            if fm is None:
+                continue
+            symbol = self._cm.symbols.get(entry.symbol_id or "")
+            refs.append(
+                {
+                    "file": entry.file,
+                    "start_line": symbol.start_line if symbol else max(1, entry.line),
+                    "end_line": symbol.end_line if symbol else max(1, entry.line),
+                    "symbol": symbol.qualname if symbol else entry.kind,
+                }
+            )
+        return refs
+
     def _materialise(
         self,
         flow: GroundedFlow,
@@ -308,6 +333,7 @@ class FlowGenerator:
         callee_of: Symbol | None = None,
     ) -> GenerationResult:
         parent_id = parent.id if parent is not None else None
+        fallback_refs = self._fallback_refs(parent)
         key_to_id: dict[str, str] = {}
         nodes: list[FlowNode] = []
         for index, grounded in enumerate(flow.nodes):
@@ -318,6 +344,7 @@ class FlowGenerator:
                 continue
             node_id = new_node_id()
             key_to_id[grounded.key] = node_id
+            refs = [r.model_dump() for r in grounded.code_refs] or fallback_refs
             scope = child_scope
             if child_scope == "function" and len(grounded.coverage) == 1:
                 sym = self._cm.symbols.get(grounded.coverage[0])
@@ -338,7 +365,7 @@ class FlowGenerator:
                     explanation=grounded.explanation,
                     inputs=grounded.inputs,
                     outputs=grounded.outputs,
-                    code_refs=[r.model_dump() for r in grounded.code_refs],
+                    code_refs=refs,
                     coverage=grounded.coverage,
                     scope=scope,
                     has_children=has_children,

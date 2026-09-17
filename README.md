@@ -69,7 +69,7 @@ and every arrow is labelled with the data that actually moves — `email + passw
 |---|---|
 | **Grounded in real code** | tree-sitter builds a map of the real files, functions, classes and call sites first. Claude may only describe things in that map. Output referencing a file, symbol or line that isn't in your upload is **rejected and regenerated**, not shown. |
 | **Written for non-programmers** | Titles are verb phrases of five words or fewer. Explanations are 25 words of plain English. No jargon, and the model is told to say "probably" rather than invent. |
-| **Cheap by design** | Static analysis does everything it can for free. Summaries flow upward so raw code is only ever sent at function level. Prompt caching, batching, content-hash caching, and a cheap model for deep levels. You see a cost estimate before anything runs. |
+| **Cheap by design** | Static analysis does everything it can for free. Summaries flow upward so raw code is only ever sent at function level. Prompt caching, batching, content-hash caching, and a cheap model for deep levels. A real run over the Flask sample — 6 files, 24 functions, 70 nodes — cost **$0.12**, against an estimate of $0.18–$0.50 shown up front. |
 | **Bring your own key** | No accounts, no passwords, no vendor lock-in. Your key stays on the server, encrypted if you ask it to be remembered, and never reaches the browser or the logs. |
 | **Shareable** | Copy a live link, or download one HTML file that opens and expands on any machine with no server and no internet. |
 | **Never executes your code** | Uploads are read as text and parsed. Nothing is imported, installed, built or run — ever. |
@@ -100,9 +100,9 @@ and every arrow is labelled with the data that actually moves — `email + passw
 </table>
 
 > [!NOTE]
-> These screenshots were taken in **demo mode** (`LLM_MODE=mock`), which fills the boxes with
-> deterministic placeholder wording so the app can be demonstrated without an API key. With a real
-> key the structure is identical and the writing is genuinely explanatory.
+> Real output: the `samples/flask-todo` project analysed with Claude Opus 5 for the top levels and
+> Claude Haiku 4.5 for the deep ones (Smart mix). 70 nodes, **$0.12**. Regenerate with
+> `LLM_MODE=anthropic ANTHROPIC_API_KEY=… pnpm screenshots`.
 
 ---
 

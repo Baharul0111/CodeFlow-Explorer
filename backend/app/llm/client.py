@@ -87,23 +87,37 @@ class ClaudeClient(Protocol):
     async def aclose(self) -> None: ...
 
 
-def _capability(info: ModelInfo, *path: str) -> bool:
+def _capability(info: ModelInfo, *path: str, default: bool = False) -> bool:
+    """Read a nested capability flag.
+
+    The SDK returns ``capabilities`` as typed objects (``ModelCapabilities`` with
+    ``structured_outputs=CapabilitySupport(supported=True)``), while the REST documentation shows
+    plain nested dicts, and older SDKs omit the field entirely. Handle all three, and fall back to
+    ``default`` when the answer cannot be determined rather than guessing.
+    """
     node: Any = getattr(info, "capabilities", None)
+    if node is None:
+        return default
     for key in path:
-        if not isinstance(node, dict) or key not in node:
-            return False
-        node = node[key]
+        node = node.get(key) if isinstance(node, dict) else getattr(node, key, None)
+        if node is None:
+            return default
+    if isinstance(node, bool):
+        return node
     if isinstance(node, dict):
-        return bool(node.get("supported", False))
-    return bool(node)
+        return bool(node.get("supported", default))
+    supported = getattr(node, "supported", None)
+    return default if supported is None else bool(supported)
 
 
 def model_spec_from_info(info: ModelInfo) -> ModelSpec:
     return ModelSpec(
         id=info.id,
         display_name=info.display_name or info.id,
-        supports_structured_outputs=_capability(info, "structured_outputs"),
-        supports_effort=_capability(info, "effort"),
+        # Fail open: an unknown structured-output capability must not hide every model. Effort
+        # fails closed instead, because sending it to a model that lacks it is a 400.
+        supports_structured_outputs=_capability(info, "structured_outputs", default=True),
+        supports_effort=_capability(info, "effort", default=False),
         max_input_tokens=getattr(info, "max_input_tokens", None),
         max_output_tokens=getattr(info, "max_tokens", None),
         source="api",

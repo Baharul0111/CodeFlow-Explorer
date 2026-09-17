@@ -17,7 +17,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [
     {
-      command: `cd ../backend && LLM_MODE=mock APP_ENV=test PORT=${backendPort} FRONTEND_ORIGIN=http://localhost:${frontendPort} DATABASE_URL=sqlite+aiosqlite:///./.e2e/e2e.db WORKSPACE_DIR=./.e2e/workspace uv run uvicorn app.main:app --port ${backendPort}`,
+      command: `cd ../backend && LLM_MODE=${process.env.LLM_MODE ?? "mock"} APP_ENV=test PORT=${backendPort} FRONTEND_ORIGIN=http://localhost:${frontendPort} DATABASE_URL=sqlite+aiosqlite:///./.e2e/e2e.db WORKSPACE_DIR=./.e2e/workspace uv run uvicorn app.main:app --port ${backendPort}`,
       url: `http://localhost:${backendPort}/api/health`,
       reuseExistingServer: false,
       timeout: 120_000,

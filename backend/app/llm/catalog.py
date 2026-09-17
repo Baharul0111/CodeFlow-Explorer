@@ -8,6 +8,9 @@ from __future__ import annotations
 
 from app.config import ModelsConfig
 from app.llm.types import ModelSpec
+from app.logging_setup import get_logger
+
+log = get_logger(__name__)
 
 
 def _apply_pricing(spec: ModelSpec, config: ModelsConfig) -> ModelSpec:
@@ -29,15 +32,45 @@ def fallback_models(config: ModelsConfig) -> list[ModelSpec]:
     ]
 
 
+TIER_ORDER = {"capable": 0, "balanced": 1, "cheap": 2, "unknown": 3}
+
+
 def merge_models(api_models: list[ModelSpec], config: ModelsConfig) -> list[ModelSpec]:
-    """Price and sort the live list: capable first, then balanced, then cheap."""
-    order = {"capable": 0, "balanced": 1, "cheap": 2, "unknown": 3}
+    """Price and group the live list: capable first, then balanced, then cheap.
+
+    Within a tier the Models API's own order is kept (newest first), so a superseded model never
+    sorts above its successor.
+    """
     priced = [_apply_pricing(m, config) for m in api_models]
-    return sorted(priced, key=lambda m: (order.get(m.tier, 3), -(m.input_price or 0), m.id))
+    return sorted(priced, key=lambda m: TIER_ORDER.get(m.tier, 3))  # stable: API order preserved
+
+
+def pick_default_model(models: list[ModelSpec]) -> str | None:
+    """The model pre-selected in the dropdown.
+
+    The best value in the strongest tier available: cheapest input price among the top tier, with
+    the newest model winning a tie. That keeps the default strong without defaulting to the most
+    expensive model on the account, and involves no hardcoded model id.
+    """
+    usable = usable_models(models)
+    if not usable:
+        return None
+    best_tier = min(TIER_ORDER.get(m.tier, 3) for m in usable)
+    candidates = [m for m in usable if TIER_ORDER.get(m.tier, 3) == best_tier]
+    return min(candidates, key=lambda m: m.input_price if m.input_price is not None else 0.0).id
 
 
 def usable_models(models: list[ModelSpec]) -> list[ModelSpec]:
-    return [m for m in models if m.supports_structured_outputs]
+    """Models this app can drive.
+
+    If the capability data would filter everything out, keep the full list instead: a wrong model
+    fails with a clear message at call time, whereas an empty dropdown leaves the user stuck.
+    """
+    usable = [m for m in models if m.supports_structured_outputs]
+    if not usable and models:
+        log.warning("no_model_reported_structured_outputs", count=len(models))
+        return models
+    return usable
 
 
 def pick_deep_model(models: list[ModelSpec], selected_id: str) -> str:

@@ -11,7 +11,13 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from app.api.deps import ClientKeyDep, LimiterDep, SessionDep, SettingsDep
-from app.llm.catalog import fallback_models, merge_models, pick_deep_model, usable_models
+from app.llm.catalog import (
+    fallback_models,
+    merge_models,
+    pick_deep_model,
+    pick_default_model,
+    usable_models,
+)
 from app.llm.client import AnthropicClaudeClient, llm_errors
 from app.llm.errors import InvalidKeyError
 from app.llm.mock import MockClaudeClient
@@ -74,7 +80,7 @@ async def test_key(
     token = store.put(api_key)
     if body.remember:
         await store.remember(session, token, api_key)
-    suggested = models[0].id if models else None
+    suggested = pick_default_model(models)
     log.info("key_tested", models=len(models), remembered=body.remember)
     return TestKeyResponse(
         session_token=token,

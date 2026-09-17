@@ -324,3 +324,24 @@ async def test_sse_stream_reports_progress(live_server: str) -> None:
     assert "nodes" in seen
     assert seen[-1] == "done"
     assert any("percent" in p for p in payloads)
+
+
+async def test_every_node_points_at_real_code(client: AsyncClient, settings: Settings) -> None:
+    """No node may be a dead end in the side panel.
+
+    Claude sometimes returns a connector node that covers no code unit of its own. Those must still
+    reference something real — the parent's region, or the project's entry points at the top level.
+    """
+    project_id = await _upload_and_analyse(client)
+    graph = (await client.get(f"/api/projects/{project_id}/graph")).json()
+    root = Path(settings.workspace_dir) / project_id / "src" / "todo"
+
+    without_refs = [n for n in graph["nodes"] if not n["code_refs"]]
+    assert not without_refs, f"nodes with no code reference: {[n['title'] for n in without_refs]}"
+
+    for node in graph["nodes"]:
+        for ref in node["code_refs"]:
+            path = root / ref["file"]
+            assert path.is_file(), f"{node['title']}: {ref['file']} is not in the upload"
+            total = len(path.read_text().splitlines())
+            assert 1 <= ref["start_line"] <= ref["end_line"] <= max(total, 1)
