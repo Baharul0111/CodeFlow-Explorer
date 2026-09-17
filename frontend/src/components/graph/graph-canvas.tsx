@@ -215,7 +215,7 @@ function GraphCanvasInner({ projectId, projectName, initialGraph }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [visible, expanded, focusId, selectedId, busyNodes, toggle, focusOn]);
+  }, [visible, expanded, focusId, selectedId, busyNodes, toggle, focusOn, setRfNodes, setRfEdges]);
 
   // Fit only once React Flow has measured the nodes, otherwise it fits an empty box. After an
   // expansion the view settles on the node that was opened, so its children stay readable.
@@ -284,7 +284,6 @@ function GraphCanvasInner({ projectId, projectName, initialGraph }: Props) {
             nodeTypes={NODE_TYPES}
             onNodeClick={onNodeClick}
             onPaneClick={() => setSelectedId(null)}
-            proOptions={{ hideAttribution: true }}
             minZoom={0.1}
             maxZoom={2}
             fitView

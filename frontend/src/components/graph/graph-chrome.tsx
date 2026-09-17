@@ -134,6 +134,27 @@ export function Legend() {
   );
 }
 
+function ShareButton({ projectId }: { projectId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyLink = async () => {
+    const link = `${window.location.origin}/projects/${projectId}/graph`;
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      window.prompt("Copy this link:", link);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Button variant="secondary" onClick={copyLink} className="px-2.5 py-1.5 text-xs">
+      {copied ? "Link copied" : "Copy link"}
+    </Button>
+  );
+}
+
 export function GraphToolbar({
   projectId,
   projectName,
@@ -156,15 +177,24 @@ export function GraphToolbar({
       <span className="truncate text-sm font-medium">{projectName}</span>
       <div className="ml-auto flex flex-wrap items-center gap-2">
         {children}
+        <ShareButton projectId={projectId} />
+        <a
+          href={api.exportPageUrl(projectId)}
+          className="rounded-lg bg-accent px-2.5 py-1.5 text-xs font-semibold text-accent-contrast hover:bg-accent-hover"
+          download
+          title="A single file you can send to anyone — it opens and expands without this server"
+        >
+          Share as page
+        </a>
         <Button variant="secondary" onClick={onExportPng} className="px-2.5 py-1.5 text-xs">
-          Export PNG
+          PNG
         </Button>
         <a
           href={api.exportUrl(projectId)}
           className="rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-text hover:bg-sunken"
           download
         >
-          Export JSON
+          JSON
         </a>
         <ThemeToggle />
       </div>

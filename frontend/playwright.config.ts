@@ -23,7 +23,7 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: `NEXT_PUBLIC_API_URL=http://localhost:${backendPort} pnpm dev --port ${frontendPort}`,
+      command: `NEXT_PUBLIC_API_URL=http://localhost:${backendPort} PORT=${frontendPort} pnpm dev`,
       url: `http://localhost:${frontendPort}`,
       reuseExistingServer: false,
       timeout: 180_000,

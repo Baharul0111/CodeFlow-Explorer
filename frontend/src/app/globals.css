@@ -193,7 +193,11 @@ h3,
 
 /* React Flow surface adopts our tokens in both themes */
 .react-flow__attribution {
-  display: none;
+  background: transparent;
+  font-size: 10px;
+}
+.react-flow__attribution a {
+  color: var(--text-faint);
 }
 .react-flow__edge-text {
   font-family: var(--font-sans);

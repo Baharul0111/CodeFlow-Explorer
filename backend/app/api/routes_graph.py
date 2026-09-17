@@ -17,6 +17,7 @@ from app.api.errors import AppError, NotFoundError
 from app.api.model_resolution import models_for, resolve_api_key
 from app.api.schemas import EdgeOut, NodeOut
 from app.config import Settings
+from app.export.viewer import ExportPayload, collect_snippets, render
 from app.models.orm import FlowEdge, FlowNode, Project
 from app.pipeline.analysis import AnalysisRequest, AnalysisService
 from app.pipeline.projects import get_project, project_root
@@ -232,6 +233,35 @@ async def snippet(
         end_line=last,
         language=path.suffix.lstrip("."),
         code="\n".join(lines[first - 1 : last]),
+    )
+
+
+@router.get("/export.html")
+async def export_page(project_id: str, session: SessionDep, settings: SettingsDep) -> Response:
+    """One self-contained HTML file: the whole graph, its code snippets, and a viewer.
+
+    It opens offline by double-clicking and can be shared with anyone — expanding, searching and
+    the side panel all work without this server.
+    """
+    project = await get_project(session, project_id)
+    nodes = await _all_nodes(session, project_id)
+    edges = await _all_edges(session, project_id)
+    if not nodes:
+        raise NotFoundError("This project has no flow to share yet.")
+    node_payloads = [_node_out(n).model_dump() for n in nodes]
+    html = render(
+        ExportPayload(
+            project={"id": project.id, "name": project.name, "model": project.model_id},
+            nodes=node_payloads,
+            edges=[_edge_out(e).model_dump() for e in edges],
+            snippets=collect_snippets(project_root(settings, project), node_payloads),
+        )
+    )
+    filename = f"{project.name or 'codeflow'}-flow.html"
+    return Response(
+        content=html,
+        media_type="text/html; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

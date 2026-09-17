@@ -177,6 +177,9 @@ export const api = {
     ),
 
   exportUrl: (projectId: string) => `${API_URL}/api/projects/${projectId}/graph/export`,
+
+  /** A single HTML file holding the whole graph, its snippets and a viewer — works offline. */
+  exportPageUrl: (projectId: string) => `${API_URL}/api/projects/${projectId}/graph/export.html`,
 };
 
 export interface EstimateBody {

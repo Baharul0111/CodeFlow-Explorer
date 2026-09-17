@@ -29,3 +29,4 @@ samples/dist/*.zip
 .idea/
 .vscode/
 backend/.dev/
+.scratch/

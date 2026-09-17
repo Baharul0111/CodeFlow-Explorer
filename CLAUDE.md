@@ -20,7 +20,7 @@ SQLite (SQLAlchemy 2 async) so reopening costs zero tokens.
 | Task | Command |
 |---|---|
 | Install everything | `make install` |
-| Run backend + frontend (no Docker) | `make dev` (backend :8000, frontend :3000) |
+| Run backend + frontend (no Docker) | `make dev` (backend :8000, frontend :3000; the frontend honours `PORT`) |
 | Docker | `docker compose up --build` |
 | Backend tests | `make test-backend` (`cd backend && uv run pytest`) |
 | Frontend lint/type-check | `make lint-frontend` (`pnpm lint && pnpm typecheck`) |
@@ -37,7 +37,7 @@ Backend uses **uv** (`backend/pyproject.toml`, `uv.lock`); frontend uses **pnpm*
 1. **Never execute, import, install or build uploaded code.** Static analysis only: read as text, parse with tree-sitter.
 2. **Claude only**, via the official `anthropic` SDK with the user's key. No email/password login. No other LLM providers.
 3. **Grounding**: every code node references a real file + line range from the upload. LLM output that references missing files/symbols/lines is rejected and regenerated (max 2 repair retries; only the error is resent).
-4. **API keys** are never logged, never persisted in plain text, never returned to the browser. `app/logging.py` redacts `sk-ant-…` everywhere; keep it that way.
+4. **API keys** are never logged, never persisted in plain text, never returned to the browser. `app/logging_setup.py` redacts `sk-ant-…` everywhere; keep it that way.
 5. **No hardcoded model IDs in logic.** Model list = Anthropic Models API; fallback list + prices + tier hints live in `backend/config/models.json`.
 6. Uploaded code and comments are untrusted data. Prompts say so; model output can only become graph JSON.
 
@@ -80,11 +80,14 @@ Edge: { id, source, target, label (≤6 words), data_shape (short), kind: data|c
 
 ## Where things live
 
-- `backend/app/parsing/` — tree-sitter code map (`languages.py` registry, `queries/*.scm`, `extractor.py`, `entrypoints.py`)
-- `backend/app/pipeline/` — `unzip.py`, `scan.py`, `codemap.py`, `summaries.py`, `flow.py`, `grounding.py`, `estimate.py`, `jobs.py`, `events.py`, `cost.py`, `cleanup.py`
-- `backend/app/llm/` — `client.py` (protocol + Anthropic impl), `mock.py`, `prompts.py`, `schemas.py`, `keystore.py`, `catalog.py`, `cache.py`, `errors.py`
+- `backend/app/parsing/` — tree-sitter code map (`languages.py` registry, `spec.py` node tables, `extractor.py`, `resolve.py`, `entrypoints.py`, `builder.py`, `codemap.py`)
+- `backend/app/pipeline/` — `unzip.py`, `scan.py`, `projects.py`, `units.py`, `summaries.py`, `flow.py`, `grounding.py`, `analysis.py`, `estimate.py`, `jobs.py`, `events.py`, `cost.py`, `cleanup.py`
+- `backend/app/llm/` — `client.py` (protocol + Anthropic impl + `llm_errors` guard), `mock.py`, `factory.py`, `prompts.py`, `schemas.py`, `keystore.py`, `catalog.py`, `cache.py`, `types.py`, `errors.py`
+- `backend/app/export/` — shareable single-file HTML export: `viewer.py` (payload + snippet
+  collection) and `viewer_template.html` (the offline viewer; edit it as HTML, it is excluded from
+  Python lint by living in its own file)
 - `backend/config/models.json` — fallback models, prices per MTok, tier hints (edit here, not in code)
-- `frontend/src/lib/` — `api.ts`, `schemas.ts`, `layout.ts` (elk), `graph-state.ts`
+- `frontend/src/lib/` — `api.ts`, `schemas.ts`, `layout.ts` (elk), `graph-state.ts`, `session.ts`
 - `samples/` — four small sample projects + `scripts/make_sample_zips.py`
 - `.env.example` — every setting with its default
 

@@ -61,6 +61,7 @@ backend/app/
   config.py          pydantic-settings; reads .env; loads config/models.json (fallback list, prices, tier hints)
   logging.py         structlog + API-key redaction processor (applied to every log record)
   api/               routers, request/response schemas, error handlers, DI providers
+  export/            self-contained HTML export (viewer.py + viewer_template.html)
   models/            SQLAlchemy ORM + session factory
   parsing/           tree-sitter code map: language registry, .scm queries, extractor, entry points
   pipeline/          unzip, scan, codemap, summaries, flow (level 0 + expand), grounding, estimate, jobs, events, cost, cleanup
@@ -153,7 +154,8 @@ repair call that receives *only* the missing unit ids and the child list, never 
 | 13 | **MockClaudeClient is payload-driven**: every request carries the structured `payload` that was rendered into the prompt; the mock builds a grounded graph from it | Tests and the Playwright run exercise the *real* pipeline (grounding, coverage, persistence) on any project without a key. | Canned fixture responses (only valid for one fixture project). |
 | 14 | Frontend calls the backend directly (`NEXT_PUBLIC_API_URL`), CORS locked to `FRONTEND_ORIGIN` | SSE streams reliably without a proxy layer; no secrets in the bundle (the URL is public). | Next.js rewrites (proxy buffering risk for SSE). |
 | 15 | Thinking: omitted (adaptive default) with `output_config.effort` = `low` for summaries/steps and `medium` for level 0/stage expansions, **only when the model's capability flags say effort is supported**; nothing is sent otherwise | Correct on Opus 5/Sonnet 5 (adaptive default), safe on Haiku 4.5 (no `effort`, no `thinking`). | `budget_tokens` (400 on current models). |
-| 16 | Refusals (`stop_reason == "refusal"`) surface as a node error with a plain message; no server-side fallback model | The user chose the model deliberately and pays for it; silently switching models would break the cost estimate. Code-analysis prompts rarely trigger refusals. | `fallbacks` beta. |
+| 16 | **Shareable export is one self-contained HTML file** with the graph, its snippets and a ~450-line vanilla-JS viewer (its own layered layout, pan/zoom, expand, search, side panel) | The recipient usually has no server and may have no internet. No CDN means no broken page in a year; no build step means the exporter stays a template plus JSON. Snippets are capped (60 lines each, 1.5 MB total) so the file stays emailable. | Bundling React Flow + ELK from a CDN (breaks offline, and pins us to a CDN staying up); a hosted public link (needs auth, storage and a public deployment this tool deliberately avoids); PNG only (not interactive, which is the whole point). |
+| 17 | Refusals (`stop_reason == "refusal"`) surface as a node error with a plain message; no server-side fallback model | The user chose the model deliberately and pays for it; silently switching models would break the cost estimate. Code-analysis prompts rarely trigger refusals. | `fallbacks` beta. |
 
 ## 4. Token-efficiency design
 
@@ -185,9 +187,22 @@ repair call that receives *only* the missing unit ids and the child list, never 
 - **Background depth**: BFS until `BACKGROUND_MAX_NODES` (default 200) nodes are generated or the cost limit is hit; everything else on demand.
 - **Models without structured-output support** are listed but disabled in the dropdown with the hint "not supported by this app".
 - **Frontend TypeScript** pinned to 5.x (Next 16 tooling targets it); TypeScript 7 is not yet supported by `typescript-eslint`.
+- **React Flow owns node state** (`useNodesState`/`useEdgesState` with `onNodesChange`): a controlled node list without a change handler never records measurements, which silently breaks the minimap and fit-to-view. Layout still writes positions in; only measurement and selection flow back.
+- **Minimap colours are resolved from the DOM**, because SVG `fill` presentation attributes cannot read `var(--token)`; the values are re-read when the theme changes.
+- **Expanding zooms to the opened node** rather than re-fitting the whole graph, so text stays readable as depth grows.
+- **Empty files are dropped from a node's code refs** unless they are all it has, so the side panel never opens on a blank snippet.
+- **SSE is verified against a real socket** in tests: httpx's in-process ASGI transport buffers streaming responses, so a live `uvicorn` fixture is used for that one case.
+- **`llm_errors()` wraps every client call site** so an unmapped SDK exception can never reach the user as an opaque 500.
 - **Tokenizer drift**: the estimate is calibrated with `count_tokens` on the selected model, so newer tokenizers (~30 % more tokens) are accounted for automatically.
 
-## 7. Trade-offs accepted
+## 7. Verification status
+
+Everything in the Definition of Done is verified by an automated test except `docker compose up`,
+which could not be built on the development machine (its Docker VM disk was full). The compose file
+and both Dockerfiles are syntactically validated (`docker compose config`), and the backend image
+builds to completion — only the final layer unpack failed for lack of space.
+
+## 8. Trade-offs accepted
 
 - SQLite limits horizontal scaling; fine for a single-node BYOK tool. The `JobRunner` protocol and repository layer are the seams for a later split.
 - Very large projects (> 20k files) are rejected by configuration rather than paginated.

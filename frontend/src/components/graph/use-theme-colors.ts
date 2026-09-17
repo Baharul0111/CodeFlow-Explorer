@@ -35,7 +35,10 @@ export function useNodeColors(): Record<NodeKind, string> {
     const update = () => setColors(readColors());
     update();
     const observer = new MutationObserver(update);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     media.addEventListener("change", update);
     return () => {
