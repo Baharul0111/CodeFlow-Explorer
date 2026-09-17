@@ -10,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.errors import install_error_handlers
 from app.api.ratelimit import RateLimiter
+from app.api.routes_analysis import router as analysis_router
+from app.api.routes_graph import router as graph_router
 from app.api.routes_health import router as health_router
 from app.api.routes_keys import router as keys_router
 from app.api.routes_projects import router as projects_router
@@ -17,6 +19,10 @@ from app.config import Settings, get_settings
 from app.llm.keystore import KeyStore
 from app.logging_setup import configure_logging, get_logger
 from app.models.db import Database
+from app.pipeline.analysis import AnalysisService
+from app.pipeline.cleanup import cleanup_old_workspaces
+from app.pipeline.events import EventBus
+from app.pipeline.jobs import JobRunner
 
 log = get_logger(__name__)
 
@@ -40,10 +46,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.db = db
         app.state.key_store = KeyStore(settings.encryption_secret())
         settings.workspace_dir.mkdir(parents=True, exist_ok=True)
-        log.info("startup", env=settings.app_env, llm_mode=settings.llm_mode)
+        bus = EventBus()
+        runner = JobRunner(settings.llm_concurrency)
+        await runner.start()
+        app.state.event_bus = bus
+        app.state.job_runner = runner
+        app.state.analysis = AnalysisService(
+            settings=settings, session_factory=db.session_factory, runner=runner, bus=bus
+        )
+        removed = await cleanup_old_workspaces(settings)
+        log.info(
+            "startup",
+            env=settings.app_env,
+            llm_mode=settings.llm_mode,
+            workspaces_removed=removed,
+        )
         try:
             yield
         finally:
+            await runner.stop()
             await db.dispose()
             log.info("shutdown")
 
@@ -73,6 +94,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(keys_router)
     app.include_router(projects_router)
+    app.include_router(analysis_router)
+    app.include_router(graph_router)
     return app
 
 
